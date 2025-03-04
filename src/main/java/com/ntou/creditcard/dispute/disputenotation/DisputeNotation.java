@@ -21,8 +21,9 @@ public class DisputeNotation {
         if(!req.checkReq())
             ResTool.regularThrow(res, DisputeNotationRC.T162A.getCode(), DisputeNotationRC.T162A.getContent(), req.getErrMsg());
 
-        billrecordSvc.updateDisputedFlag(voBillrecordSelect(req));
-
+        Billrecord updateResult = billrecordSvc.updateDisputedFlag(voBillrecordSelect(req));
+        if(updateResult == null)
+            ResTool.commonThrow(res, DisputeNotationRC.T162C.getCode(), DisputeNotationRC.T162C.getContent());
         ResTool.setRes(res, DisputeNotationRC.T1620.getCode(), DisputeNotationRC.T1620.getContent());
 
         log.info(Common.RES + res);

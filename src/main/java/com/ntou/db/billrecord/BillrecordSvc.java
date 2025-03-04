@@ -22,9 +22,13 @@ public class BillrecordSvc {
     public Billrecord findKey(String uuid) {
         return repo.findByUuid(uuid);
     }
-    public void updateDisputedFlag(Billrecord vo) {
-        Billrecord condition = repo.findByUuid(vo.getUuid());
-        condition.setDisputedFlag(vo.getDisputedFlag());
-        repo.save(condition);
+    public Billrecord updateDisputedFlag(Billrecord vo) {
+        try{
+            Billrecord condition = repo.findByUuid(vo.getUuid());
+            condition.setDisputedFlag(vo.getDisputedFlag());
+            return repo.save(condition);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
