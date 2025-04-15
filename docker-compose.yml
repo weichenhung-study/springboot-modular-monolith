@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+
+  springboot-modular-monolith:
+    build:
+      context: ../springboot-modular-monolith
+    image: springboot-modular-monolith-img
+    container_name: springboot-modular-monolith-api
+    ports:
+      - "8073:8080"
+    networks:
+      - monolithnetwork
+
+networks:
+  monolithnetwork:
+    external: true  # 使用外部已存在的網路
