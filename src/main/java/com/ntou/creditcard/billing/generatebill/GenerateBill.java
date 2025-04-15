@@ -35,7 +35,7 @@ public class GenerateBill {
         log.info(Common.API_DIVIDER + Common.START_B + Common.API_DIVIDER);
         GenerateBillRes res = new GenerateBillRes();
 
-		ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+		ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
 
 //      1. 到資料庫找到要寄送帳單的所有客戶
         List<Billrecord> billList = billrecordSvc.selectCusBill(voBillrecordSelect(), DateTool.getFirstDayOfMonth(), DateTool.getLastDayOfMonth());
@@ -43,7 +43,7 @@ public class GenerateBill {
         Map<String, List<Billrecord>> groupedData = billList.stream()
                 .collect(Collectors.groupingBy(t -> t.getCid() + t.getCardType()));//.collect(Collectors.groupingBy(Billrecord::getCid));
 
-		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
 
         String yyyymm = DateTool.getFirstDayOfMonth().substring(0,7);
         MailVO vo = new MailVO();

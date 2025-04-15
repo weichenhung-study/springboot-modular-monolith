@@ -25,11 +25,11 @@ public class DisputeNotation {
         if(!req.checkReq())
             ResTool.regularThrow(res, DisputeNotationRC.T162A.getCode(), DisputeNotationRC.T162A.getContent(), req.getErrMsg());
 
-        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
         Billrecord updateResult = billrecordSvc.updateDisputedFlag(voBillrecordSelect(req));
         if(updateResult == null)
             ResTool.commonThrow(res, DisputeNotationRC.T162C.getCode(), DisputeNotationRC.T162C.getContent());
-        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
 		
 		ResTool.setRes(res, DisputeNotationRC.T1620.getCode(), DisputeNotationRC.T1620.getContent());
 

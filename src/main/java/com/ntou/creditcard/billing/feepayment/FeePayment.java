@@ -32,7 +32,7 @@ public class FeePayment {
         if(!req.checkReq())
             ResTool.regularThrow(res, FeePaymentRC.T171A.getCode(), FeePaymentRC.T171A.getContent(), req.getErrMsg());
         
-		ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+		ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
         Billofmonth vo = setUpdatePayDate(req);
         List<Billofmonth> listBillofmonth = billofmonthSvc.findBills(vo);
         if (listBillofmonth.size() == 1){
@@ -43,7 +43,7 @@ public class FeePayment {
             sendMail(req, listBillofmonth.get(0), cuscreditSvc);
         } else
             ResTool.commonThrow(res, FeePaymentRC.T171D.getCode(), FeePaymentRC.T171D.getContent());
-        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
 
         ResTool.setRes(res, FeePaymentRC.T1710.getCode(), FeePaymentRC.T1710.getContent());
 

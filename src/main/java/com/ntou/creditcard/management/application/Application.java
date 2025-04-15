@@ -28,14 +28,14 @@ public class Application {
         if(!req.checkReq())
             ResTool.regularThrow(res, ApplicationRC.T111A.getCode(), ApplicationRC.T111A.getContent(), req.getErrMsg());
 
-        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
         Cuscredit cusDateBill = cuscreditSvc.selectKey(req.getCid(), req.getCardType());
         
 		if(cusDateBill!=null)
             ResTool.commonThrow(res, ApplicationRC.T111D.getCode(), ApplicationRC.T111D.getContent());
 
         cuscreditSvc.saveCuscredit(voCuscreditInsert(req));
-		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
 
         sendMail(req);
         ResTool.setRes(res, ApplicationRC.T1110.getCode(), ApplicationRC.T1110.getContent());

@@ -32,7 +32,7 @@ public class Transaction {
         if(!req.checkReq())
             ResTool.regularThrow(res, TransactionRC.T141A.getCode(), TransactionRC.T141A.getContent(), req.getErrMsg());
 
-		ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+		ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
         Cuscredit voCuscredit = cuscreditSvc.findCardHolderActivated(req.getCid(), req.getCardType(), req.getCardNum(), req.getSecurityCode());
 
         //check客戶是否存在且開卡完成
@@ -40,7 +40,7 @@ public class Transaction {
             ResTool.commonThrow(res, TransactionRC.T141D.getCode(), TransactionRC.T141D.getContent());
 
         billrecordSvc.saveBillrecord(voBillrecordInsert(req));
-        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
 
         MailVO vo = new MailVO();
         vo.setEmailAddr(voCuscredit.getEmail());

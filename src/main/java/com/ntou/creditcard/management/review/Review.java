@@ -30,7 +30,7 @@ public class Review {
         if(!req.checkReq())
             ResTool.regularThrow(res, ReviewRC.T121A.getCode(), ReviewRC.T121A.getContent(), req.getErrMsg());
 
-        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
         Cuscredit voCuscredit = cuscreditSvc.selectKey(req.getCid(), req.getCardType());
 
         String cusMail = "";
@@ -40,7 +40,7 @@ public class Review {
             cusMail = voCuscredit.getEmail();
 
         cuscreditSvc.updateCardApprovalStatus(voCuscreditUpdate(req));
-        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
+        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATA_INTERFACE.getValue());
 
         if(req.getCardApprovalStatus().equals(CuscreditTool.CardApprovalStatus.PASS.getValue())){
             MailVO vo = new MailVO();
