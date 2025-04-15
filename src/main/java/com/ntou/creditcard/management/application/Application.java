@@ -6,6 +6,7 @@ import com.ntou.db.cuscredit.CuscreditTool;
 import com.ntou.sysintegrat.mailserver.JavaMail;
 import com.ntou.sysintegrat.mailserver.MailVO;
 import com.ntou.tool.Common;
+import com.ntou.tool.ExecutionTimer;
 import com.ntou.tool.DateTool;
 import com.ntou.tool.ResTool;
 import lombok.NoArgsConstructor;
@@ -18,25 +19,33 @@ import org.springframework.http.ResponseEntity;
 @NoArgsConstructor
 public class Application {
     public ResponseEntity<ApplicationRes> doAPI(ApplicationReq req, CuscreditSvc cuscreditSvc) throws Exception {
-        log.info(Common.API_DIVIDER + Common.START_B + Common.API_DIVIDER);
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.APPLICATION.getValue());
+
+		log.info(Common.API_DIVIDER + Common.START_B + Common.API_DIVIDER);
         log.info(Common.REQ + req);
         ApplicationRes res = new ApplicationRes();
 
         if(!req.checkReq())
             ResTool.regularThrow(res, ApplicationRC.T111A.getCode(), ApplicationRC.T111A.getContent(), req.getErrMsg());
 
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
         Cuscredit cusDateBill = cuscreditSvc.selectKey(req.getCid(), req.getCardType());
-        if(cusDateBill!=null)
+        
+		if(cusDateBill!=null)
             ResTool.commonThrow(res, ApplicationRC.T111D.getCode(), ApplicationRC.T111D.getContent());
 
         cuscreditSvc.saveCuscredit(voCuscreditInsert(req));
-        sendMail(req);
+		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
 
+        sendMail(req);
         ResTool.setRes(res, ApplicationRC.T1110.getCode(), ApplicationRC.T1110.getContent());
 
         log.info(Common.RES + res);
         log.info(Common.API_DIVIDER + Common.END_B + Common.API_DIVIDER);
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+        
+		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.APPLICATION.getValue());
+        ExecutionTimer.exportTimings(this.getClass().getSimpleName() + "_" + DateTool.getYYYYmmDDhhMMss() + ".txt");
+		return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
     private Cuscredit voCuscreditInsert(ApplicationReq req){

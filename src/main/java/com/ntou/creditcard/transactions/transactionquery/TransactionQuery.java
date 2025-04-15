@@ -3,6 +3,8 @@ package com.ntou.creditcard.transactions.transactionquery;
 import com.ntou.db.billrecord.Billrecord;
 import com.ntou.db.billrecord.BillrecordSvc;
 import com.ntou.tool.Common;
+import com.ntou.tool.DateTool;
+import com.ntou.tool.ExecutionTimer;
 import com.ntou.tool.ResTool;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -16,21 +18,28 @@ import java.util.List;
 @NoArgsConstructor
 public class TransactionQuery {
     public ResponseEntity<TransactionQueryRes> doAPI(TransactionQueryReq req, BillrecordSvc billrecordSvc) throws Exception {
-        log.info(Common.API_DIVIDER + Common.START_B + Common.API_DIVIDER);
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.APPLICATION.getValue());
+
+		log.info(Common.API_DIVIDER + Common.START_B + Common.API_DIVIDER);
         log.info(Common.REQ + req);
         TransactionQueryRes res = new TransactionQueryRes();
 
         if(!req.checkReq())
             ResTool.regularThrow(res, TransactionQueryRC.T161A.getCode(), TransactionQueryRC.T161A.getContent(), req.getErrMsg());
 
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
         List<Billrecord> billList = billrecordSvc.selectCusBillAll(voBillrecordSelect(req), req.getStartDate(), req.getEndDate());
+        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
 
         ResTool.setRes(res, TransactionQueryRC.T1610.getCode(), TransactionQueryRC.T1610.getContent());
         res.setResult(billList);
 
         log.info(Common.RES + res);
         log.info(Common.API_DIVIDER + Common.END_B + Common.API_DIVIDER);
-        return ResponseEntity.status(HttpStatus.OK).body(res);
+        
+		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.APPLICATION.getValue());
+        ExecutionTimer.exportTimings(this.getClass().getSimpleName() + "_" + DateTool.getYYYYmmDDhhMMss() + ".txt");
+		return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     private Billrecord voBillrecordSelect(TransactionQueryReq req){

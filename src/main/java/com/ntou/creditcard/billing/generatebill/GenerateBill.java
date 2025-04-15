@@ -9,6 +9,7 @@ import com.ntou.db.cuscredit.CuscreditSvc;
 import com.ntou.sysintegrat.mailserver.JavaMail;
 import com.ntou.sysintegrat.mailserver.MailVO;
 import com.ntou.tool.Common;
+import com.ntou.tool.ExecutionTimer;
 import com.ntou.tool.DateTool;
 import com.ntou.tool.ResTool;
 import lombok.NoArgsConstructor;
@@ -29,14 +30,20 @@ public class GenerateBill {
     public ResponseEntity<GenerateBillRes> doAPI(
             BillofmonthSvc billofmonthSvc, BillrecordSvc billrecordSvc
             , CuscreditSvc cuscreditSvc) throws Exception {
+		ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.APPLICATION.getValue());
+
         log.info(Common.API_DIVIDER + Common.START_B + Common.API_DIVIDER);
         GenerateBillRes res = new GenerateBillRes();
+
+		ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
 
 //      1. 到資料庫找到要寄送帳單的所有客戶
         List<Billrecord> billList = billrecordSvc.selectCusBill(voBillrecordSelect(), DateTool.getFirstDayOfMonth(), DateTool.getLastDayOfMonth());
 //      2. 整理,將資料以卡身分證和卡別分組
         Map<String, List<Billrecord>> groupedData = billList.stream()
                 .collect(Collectors.groupingBy(t -> t.getCid() + t.getCardType()));//.collect(Collectors.groupingBy(Billrecord::getCid));
+
+		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
 
         String yyyymm = DateTool.getFirstDayOfMonth().substring(0,7);
         MailVO vo = new MailVO();
@@ -77,7 +84,10 @@ public class GenerateBill {
 
         log.info(Common.RES + res);
         log.info(Common.API_DIVIDER + Common.END_B + Common.API_DIVIDER);
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+        
+		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.APPLICATION.getValue());
+        ExecutionTimer.exportTimings(this.getClass().getSimpleName() + "_" + DateTool.getYYYYmmDDhhMMss() + ".txt");
+		return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
     private Billofmonth setBillofmonthVO(String cid, String cardType, List<Billrecord> billList, String amt, String yyyymm){

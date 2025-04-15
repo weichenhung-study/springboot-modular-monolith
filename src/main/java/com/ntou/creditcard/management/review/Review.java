@@ -6,6 +6,8 @@ import com.ntou.db.cuscredit.CuscreditTool;
 import com.ntou.sysintegrat.mailserver.JavaMail;
 import com.ntou.sysintegrat.mailserver.MailVO;
 import com.ntou.tool.Common;
+import com.ntou.tool.DateTool;
+import com.ntou.tool.ExecutionTimer;
 import com.ntou.tool.ResTool;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -19,13 +21,16 @@ import java.util.Random;
 @NoArgsConstructor
 public class Review {
     public ResponseEntity<ReviewRes> doAPI(ReviewReq req, CuscreditSvc cuscreditSvc) throws Exception {
-        log.info(Common.API_DIVIDER + Common.START_B + Common.API_DIVIDER);
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.APPLICATION.getValue());
+
+		log.info(Common.API_DIVIDER + Common.START_B + Common.API_DIVIDER);
         log.info(Common.REQ + req);
         ReviewRes res = new ReviewRes();
 
         if(!req.checkReq())
             ResTool.regularThrow(res, ReviewRC.T121A.getCode(), ReviewRC.T121A.getContent(), req.getErrMsg());
 
+        ExecutionTimer.startStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
         Cuscredit voCuscredit = cuscreditSvc.selectKey(req.getCid(), req.getCardType());
 
         String cusMail = "";
@@ -35,6 +40,7 @@ public class Review {
             cusMail = voCuscredit.getEmail();
 
         cuscreditSvc.updateCardApprovalStatus(voCuscreditUpdate(req));
+        ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.DATABASE.getValue());
 
         if(req.getCardApprovalStatus().equals(CuscreditTool.CardApprovalStatus.PASS.getValue())){
             MailVO vo = new MailVO();
@@ -55,6 +61,9 @@ public class Review {
 
         log.info(Common.RES + res);
         log.info(Common.API_DIVIDER + Common.END_B + Common.API_DIVIDER);
+        
+		ExecutionTimer.endStage(ExecutionTimer.ExecutionModule.APPLICATION.getValue());
+        ExecutionTimer.exportTimings(this.getClass().getSimpleName() + "_" + DateTool.getYYYYmmDDhhMMss() + ".txt");
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
